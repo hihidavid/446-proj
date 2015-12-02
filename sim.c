@@ -173,7 +173,8 @@ static void	freeFPop();
  */
 
 DLX *
-Sim_Create(memSize, interp, au, al, mu, ml, du, dl)
+Sim_Create(strategy, memSize, interp, au, al, mu, ml, du, dl)
+    int strategy;
     int memSize;		/* Number of bytes of memory to be
 				 * allocated for the machine. */
     Tcl_Interp *interp;		/* Interpreter to associate with machine. */

@@ -14,7 +14,6 @@
  */
 
 /* 888888888 added by rania */
-
 #define R_OK 4
 #define W_OK 2
 #define X_OK 1
@@ -61,6 +60,8 @@ static void Interrupt();
  *----------------------------------------------------------------------
  */
 
+#define Check	if (cmd_arg_flag > 1){ fprintf(stderr, "usage : command line option conflict [%s]", p); exit(0);} 
+
 main(argc, argv)
 int argc;
 char **argv;
@@ -76,17 +77,19 @@ char **argv;
     int mem_size = MEMSIZE;
     
     /* command line flag for branch prediction strategies */
-    int strategy = 0
-    /* default 0 -> flush pipeline
-      1 -> something
-      2 -> other thing
-      3 -> last thing
+    int strategy = 0;
+    int cmd_arg_flag = 0;
+    /* default 0 -> delay slot
+      1 -> flushing
+      2 -> pred not taken
+      3 -> -dyn-branch-pred
+      4 -> ideal
     */
     
     interp = Tcl_CreateInterp();
 
 	/* parse the command line */
-/*
+
   while (argv++, --argc) {
     if (*(p = *argv) != '-') {
       usageError:
@@ -95,10 +98,30 @@ char **argv;
     }
     
     /* todo command line */
-    if (strcmp(p,'-flushing')) { continue/break; }
-    else if (strcmp(p,'-flushing')) { strategy = 1; continue;}
-    else if ...
-      
+    if (!strcmp(p,"-flushing") && !cmd_arg_flag) {
+      Check
+      cmd_arg_flag++;
+      strategy = 1;
+      continue;
+    }
+    else if (!strcmp(p,"-pred-not-taken") && !cmd_arg_flag) {
+      cmd_arg_flag++;
+      Check
+      strategy = 2;
+      continue;
+    }
+    else if (!strcmp(p,"-dyn-branch-pred") && !cmd_arg_flag) {
+      cmd_arg_flag++;
+      Check
+      strategy = 3;
+      continue;
+    }
+    else if (!strcmp(p,"-ideal") && !cmd_arg_flag) {
+      cmd_arg_flag++;
+      Check
+      strategy = 4;
+      continue;
+    }
     
     switch (*(p+1)) {
       case 'a' :
@@ -148,7 +171,7 @@ char **argv;
         break;
     }
   }
-*/
+    
     if (mem_size < 1) {
 	fprintf(stderr, "invalid memory size (>=1)\n");
 	exit(0);
@@ -186,7 +209,7 @@ char **argv;
 
     
     /* todo pass strategy to machptr ? */
-    machPtr = Sim_Create(mem_size, interp,
+    machPtr = Sim_Create(strategy, mem_size, interp,
 		add_units, add_latency,
 		mul_units, mul_latency,
 		div_units, div_latency);
